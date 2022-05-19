@@ -1,0 +1,71 @@
+use hiveDB;
+
+--d.Average arrival delay caused by airlines
+--select AIRLINE,avg(ARRIVAL_DELAY) as avg_delay from parquet_flight_delay group by AIRLINE order by avg_delay;
+
+--e.Days of months with respected to average of arrival delays
+--select MONTH, avg(ARRIVAL_DELAY) as AVG_DELAY from parquet_flight_delay group by MONTH order by MONTH;
+
+--f.Arrange weekdays with respect to the average arrival delays caused
+select DAY_OF_WEEK,avg(ARRIVAL_DELAY) as avg_arrival_delay from parquet_flight_delay group by DAY_OF_WEEK order by DAY_OF_WEEK;
+
+--g.Arrange Days of month as per cancellations done in Descending
+--select MONTH, count(CANCELLED) as AVG_DELAY from parquet_flight_delay group by MONTH order by MONTH;
+
+--h.Finding busiest airports with respect to day of week
+select DAY_OF_WEEK,count(ORIGIN_AIRPORT) as origin_count,count(DESTINATION_AIRPORT) as dest_count
+ from parquet_flight_delay group by DAY_OF_WEEK order by origin_count,dest_count;
+
+--i.Finding airlines that make the maximum number of cancellations
+--select AIRLINE, sum(CANCELLED) as cancel from parquet_flight_delay where cancelled=1 group by AIRLINE order by cancel desc;
+
+--j.Find and order airlines in descending that make the most number of diversions
+--select AIRLINE, sum(DIVERTED) as diverted from parquet_flight_delay group by AIRLINE order by diverted desc;
+
+--k.Finding days of month that see the most number of diversion
+--select MONTH,DAY, sum(DIVERTED) as no_of_diversions from parquet_flight_delay group by MONTH,DAY order by no_of_diversions 
+
+--l.Calculating mean and standard deviation of departure delay for all flights in minutes
+--select AIRLINE,avg(DEPARTURE_DELAY) as mean, stddev(DEPARTURE_DELAY) as std_deviation from parquet_flight_delay
+--group by AIRLINE order by mean desc;
+
+--m.Calculating mean and standard deviation of arrival delay for all flights in minutes
+--select AIRLINE,avg(ARRIVAL_DELAY) as mean, stddev(ARRIVAL_DELAY) as std_deviation from parquet_flight_delay
+--group by AIRLINE order by mean desc;
+
+--n.Create a partitioning table “flights_partition” using partitioned by schema “CANCELLED”
+
+
+--o.Create Bucketing table “Flights_Bucket” using clustered by MONTH into 3 Buckets Note: No partitioning, only bucketing of table.
+set hive.enforce.bucketing=true;
+--create external table if not exists flights_bucket (ID INT, YEAR INT, MONTH INT, DAY INT, DAY_OF_WEE INT, AIRLINE VARCHAR(10),FLIGHT_NUMBER INT, TAIL_NUMBER VARCHAR(20),
+ORIGIN_AIRPORT VARCHAR(20), DESTINATION_AIRPORT VARCHAR(20), SCHEDULED_DEPARTURE INT, DEPARTURE_TIME INT,DEPARTURE_DELAY INT, TAXI_OUT INT, WHEELS_OFF INT, SCHEDULED_TIME INT,
+ELAPSED_TIME INT, AIR_TIME INT, DISTANCE INT, WHEELS_ON INT, TAXI_IN INT, SCHEDULED_ARRIVAL INT, ARRIVAL_TIME INT, ARRIVAL_DELAY INT, DIVERTED INT,
+CANCELLED INT, CANCELLATION_REASON INT, AIR_SYSTEM_DELAY INT, SECURITY_DELAY INT, AIRLINE_DELAY INT,LATE_AIRCRAFT_DELAY INT, WEATHER_DELAY INT) 
+clustered by (MONTH) into 3 buckets
+row format delimited
+fields terminated by ','
+stored as textfile;
+
+--insert into flights_bucket select * from flights_delay;
+
+
+--p.Get Count of data of each bucket
+
+
+--q.Finding all diverted Route from a source to destination Airport & which route is the most diverted
+--select ORIGIN_AIRPORT,DESTINATION_AIRPORT, sum(DIVERTED) as diversions from parquet_flight_delay where DIVERTED=1
+-- group by ORIGIN_AIRPORT,DESTINATION_AIRPORT order by diversions desc;
+
+
+--r.Finding AIRLINES with its total flight count, total number of flights arrival delayed by more than 30
+-- Minutes, % of such flights delayed by more than 30 minutes when it is not Weekends with minimum count of flights
+-- from Airlines by more than 10. Also Exclude some of Airlines 'AK', 'HI', 'PR', 'VI' and arrange output in
+-- descending order by % of such count of flights.
+
+--s.Finding AIRLINES with its total flight count with total number of flights departure delayed by less than
+-- 30 Minutes, % of such flights delayed by less than 30 minutes when it is Weekends with minimum count of
+-- flights from Airlines by more than 10. Also Exclude some of Airlines 'AK', 'HI', 'PR', 'VI' and arrange output
+-- in descending order by % of such count of flights. 
+ 
+--t.When is the best time of day/day of week/time of a year to fly with minimum delays?

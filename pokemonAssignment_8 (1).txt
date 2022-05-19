@@ -1,0 +1,58 @@
+start-dfs.sh && start-yarn.sh
+hdfs dfs -mkdir /Pokemon
+hdfs dfs -put Downloads/pokemon.csv /Pokemon
+
+nano pokemon_Hive.hql
+
+create database if not exists pokemonDB;
+use pokemonDB;
+
+drop table if exists pokemon;
+CREATE TABLE pokemon (Number Int,Name String,Type1 String,Type2 String,Total Int,HP Int,
+Attack Int,Defense Int,Sp_Atk Int,Sp_Def Int,Speed Int) 
+row format delimited
+fields terminated BY ‘,’
+lines terminated BY ‘\n’ 
+stored as textfile
+location '/Assignment_pokemon';
+
+a.Create hive table and Load Dataset [Using Load Command]
+load data local inpath ‘/home/hadoop/Downloads/Desktop/Pokemon.csv ‘ INTO table pokemon;
+select * from pokemon limit 5;
+
+hive -f weblog_Hive.hql
+
+b.Create a Hive Program file with .hql extension.
+ .Use Beeline Shell to run the following query analysis. 
+
+netstat -anp | grep 10000
+beeline -n hadoop -u jdbc:hive2://127.0.0.1:10000
+
+
+c.Find out the average HP (Hit Points) of all the Pokémon
+Select avg(HP) from pokemon;
+
+d.Create and insert values of the existing table into a new table with an additional column power_rate into “powerful”, “moderate” and “powerless” from the table “Pokémon”
+create table pokemon1 as select *, IF(HP>69.25875, ‘powerful’, IF(HP<69.25875, ‘Moderate’,‘powerless’)) 
+AS power_rate from pokemon;
+
+select COUNT(name),power_rate from pokemon1 group by power_rate;
+
+e.Find out top 10 Pokémon according to their HP
+select name,hp from pokemon1 order by hp desc limit 10;
+
+
+f.Find out top 10 Pokémon based on their Attack stat
+select name,attack from pokemon1 order by attack desc limit 10;
+
+g.Find out top 15 Pokémon based on their defence stat
+select name,defense from pokemon1 order by defense desc limit 15;
+
+h.Find out the top 20 Pokémon based on their total power
+select name,total from pokemon1 order by total desc limit 10;
+
+i.Find out the top 10 Pokémon having a drastic change in their attack and sp.attack
+select name,(attack –sp_atk) as atk_diff from pokemon1 order by atk_diff limit 10;
+
+j.Find the top 10 Pokémon having a drastic change in their defence and special defence
+select name,(defense–sp_defense) as def_diff from pokemon1 order by def_diff limit 10;

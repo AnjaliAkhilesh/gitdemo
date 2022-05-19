@@ -1,0 +1,83 @@
+--1. Create an External Hive Table stored as "TextFile"
+DROP table if exists HR_Employee;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS HR_Employee(ID INT, Department varchar(50), JobRole VARCHAR(30), Attrition VARCHAR(10) ,
+Gender  VARCHAR(10), Age INT, MaritalStatus VARCHAR(20), Education VARCHAR(50), EducationField VARCHAR(50),
+BusinessTravel VARCHAR(60) , JobInvolvement VARCHAR(50), JobLevel INT, JobSatisfaction VARCHAR(50), Hourlyrate INT,
+Income INT, SalaryHike INT, OverTime VARCHAR(20), Workex INT, YearsSinceLastPromotion VARCHAR(50),
+EmpSatisfaction VARCHAR(50) , TrainingTimesLastYear INT , WorkLifeBalence VARCHAR(50),
+Performance_Rating VARCHAR(50))
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE
+LOCATION '/HR_Employee';
+
+--2. Display First 6 Rows of Records
+select * from HR_Employee limit 6;
+
+
+--1. Create external table wit parquet file format
+drop table if exists parquet_HR_Employee;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS parquet_HR_Employee(ID INT, Department varchar(50), JobRole VARCHAR(30), Attrition VARCHAR(10) ,
+Gender  VARCHAR(10), Age INT, MaritalStatus VARCHAR(20), Education VARCHAR(50), EducationField VARCHAR(50),
+BusinessTravel VARCHAR(60) , JobInvolvement VARCHAR(50), JobLevel INT, JobSatisfaction VARCHAR(50), Hourlyrate INT,
+Income INT, SalaryHike INT, OverTime VARCHAR(20), Workex INT, YearsSinceLastPromotion VARCHAR(50),
+EmpSatisfaction VARCHAR(50) , TrainingTimesLastYear INT , WorkLifeBalence VARCHAR(50),
+Performance_Rating VARCHAR(50))
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+STORED AS parquetfile;
+
+--1.1. Insert into Table parquet_HR_Employee from Source Table
+insert into table parquet_HR_Employee
+SELECT * FROM  HR_Employee ;
+
+--1.2. Display First 6 Rows of Records
+select * from parquet_HR_Employee limit 6;
+
+--2.Most employee is working in which department
+select department, count(department) as department_count from parquet_HR_Employee group by department ORDER BY department_count desc;
+
+
+-- 3. Highest number of job roles ?
+select JobRole, count(JobRole) as JobRole_Count from parquet_HR_Employee group by JobRole ORDER BY JobRole_Count desc;
+
+--4.Which gender have higher strength as work force
+select  gender, count(*) as COUNT_EMP from parquet_HR_Employee group by gender ORDER BY COUNT_EMP desc;
+
+--5.Compare the marital status of employee and find the most frequent status.
+select  MaritalStatus , count(*) as COUNT_EMP from parquet_HR_Employee group by  MaritalStatus  ORDER BY COUNT_EMP desc;
+
+--6.Mostly hired employee have qualification
+select Education, count(Education) as Edu_count from parquet_HR_Employee group by Education ORDER BY Edu_count desc ;
+
+--7.Find the count of employee from which education fields
+select educationfield, count(educationfield) as count  from parquet_HR_Employee group by educationfield ORDER BY count desc ;
+
+
+--8.What is the job satisfaction level of employee?
+select JobSatisfaction , count(*) as COUNT_EMP from parquet_HR_Employee group by  JobSatisfaction ORDER BY COUNT_EMP desc ;
+
+
+--9. Does most of employee do overtime: Yes or No?
+select OverTime , count(*) as COUNT_EMP from parquet_HR_Employee group by OverTime  ORDER BY COUNT_EMP desc;
+
+--10.Find Min & Max Salaried employees.
+select SalaryHike , count(*) as COUNT_EMP from parquet_HR_Employee group by SalaryHike  ORDER BY COUNT_EMP desc;
+
+--11.Does most of the employee do business travel? Find of the employees counts for each category
+select BusinessTravel , count(*) as COUNT_EMP from parquet_HR_Employee group by BusinessTravel  ORDER BY COUNT_EMP desc;
+
+--12.Find the AVG Income of graduate employee.
+select Education ,SalaryHike , sum(SalaryHike ) as COUNT_EMP from parquet_HR_Employee group by Education,SalaryHike ORDER BY COUNT_EMP desc ;
+
+--15.Highest attrition is in which department? Display this in % percentage as well.
+select Attrition,department ,count( Attrition ) as COUNT_EMP from parquet_HR_Employee group by Attrition,department  ORDER BY COUNT_EMP desc ;
+
+
+--16.Show marital status of Person having highest attrition rate.
+select MaritalStatus, Attrition,count( Attrition ) as COUNT_EMP from parquet_HR_Employee group by Attrition, MaritalStatus ORDER BY COUNT_EMP $
+
